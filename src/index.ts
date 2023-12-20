@@ -14,37 +14,37 @@ export class EcsCluster extends Construct {
 
     const appName = props.appName;
 
-    const clusterAdmin = new iam.Role(this, 'AdminRole', {
+    new iam.Role(this, 'AdminRole', {
       roleName: `role-${appName}ClusterAdmin`,
       assumedBy: new iam.AccountRootPrincipal()
     });
 
     const vpcId = ssm.StringParameter.fromStringParameterAttributes(this, 'vpcid', {
-      parameterName: `/network/${appName}/vpc_id`
+      parameterName: `/network/vpc_id`
     }).stringValue;
 
     const az1 = ssm.StringParameter.fromStringParameterAttributes(this, 'az1', {
-      parameterName: `/network/${appName}/az1`
+      parameterName: `/network/az1`
     }).stringValue;
 
     const az2 = ssm.StringParameter.fromStringParameterAttributes(this, 'az2', {
-      parameterName: `/network/${appName}/az2`
+      parameterName: `/network/az2`
     }).stringValue;
 
     const pubsub1 = ssm.StringParameter.fromStringParameterAttributes(this, 'pubsub1', {
-      parameterName: `/network/${appName}/pubsub1`
+      parameterName: `/network/pubsub1`
     }).stringValue;
 
     const pubsub2 = ssm.StringParameter.fromStringParameterAttributes(this, 'pubsub2', {
-      parameterName: `/network/${appName}/pubsub2`
+      parameterName: `/network/pubsub2`
     }).stringValue;
 
     const prisub1 = ssm.StringParameter.fromStringParameterAttributes(this, 'prisub1', {
-      parameterName: `/network/${appName}/prisub1`
+      parameterName: `/network/prisub1`
     }).stringValue;
 
     const prisub2 = ssm.StringParameter.fromStringParameterAttributes(this, 'prisub2', {
-      parameterName: `/network/${appName}/prisub2`
+      parameterName: `/network/prisub2`
     }).stringValue;
 
     const vpc = ec2.Vpc.fromVpcAttributes(this, "VPC", {
@@ -68,30 +68,10 @@ export class EcsCluster extends Construct {
       clusterName: `cluster-${appName}`
     });
 
-    const logging = new ecs.AwsLogDriver({
-      streamPrefix: `logs-${appName}`
+    new ssm.StringParameter(this, 'cluster-arn', {
+      description: `ECS Cluster ARN`,
+      parameterName: `/ecs/clusterarn`,
+      stringValue: cluster.clusterArn
     });
-    
-    // const taskRole = new iam.Role(this, `ecs-taskRole-${appName}`, {
-    //   roleName: `role-${appName}EcsTaskRole`,
-    //   assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com')
-    // })
-    // taskRole.addToPolicy(
-    //   new iam.PolicyStatement(
-    //     {
-    //       resources: ['*'],
-    //       actions: [
-    //         "ssm:*",
-    //         "s3:*"
-    //       ],
-    //     }
-    //   )
-    // );
-
-    // new ssm.StringParameter(this, 'task-role', {
-    //   description: `ECS Cluster Task-Role ARN`,
-    //   parameterName: `/ecs/${appName}/taskrole`,
-    //   stringValue: taskRole.roleArn
-    // });
   }
 }
